@@ -1,12 +1,15 @@
 package gui;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import db.DBException;
 import gui.util.Alerts;
 import gui.util.Constraints;
 import gui.util.Utils;
+import gui.listeners.DataChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -22,6 +25,8 @@ public class DepartmentFormController implements Initializable {
 	Department department;
 	
 	DepartmentService service;
+	
+	private List<DataChangeListener> dataChangeListeners = new ArrayList<>();
 	
 	@FXML
 	private TextField txtId;
@@ -46,6 +51,10 @@ public class DepartmentFormController implements Initializable {
 		this.service = service;
 	}
 	
+	public void subscribeDataChangeListener(DataChangeListener dataChangelistener) {
+		dataChangeListeners.add(dataChangelistener);
+	}
+	
 	@FXML
 	public void onBtSaveAction(ActionEvent event) {
 		if(department == null)
@@ -55,12 +64,19 @@ public class DepartmentFormController implements Initializable {
 			throw new IllegalStateException("Service is null");
 		try {
 		  Alerts.showAlert("Sucess", null, service.saveOrUpdate(getDepartmentFormData()), AlertType.INFORMATION);
+		  notifyDataChangeListeners();
 		  Utils.currentStage(event).close();
 		} catch (DBException e) {
 			Alerts.showAlert("Error saving object", null, e.getMessage(), AlertType.ERROR);
 		}
 	}
 	
+	private void notifyDataChangeListeners() {
+		for(DataChangeListener dataChangeListener : dataChangeListeners) {
+			dataChangeListener.onDataChanged();
+		}		
+	}
+
 	private Department getDepartmentFormData() {
 		 return new Department(Utils.tryParseToInt(txtId.getText()), txtName.getText());
 	}
