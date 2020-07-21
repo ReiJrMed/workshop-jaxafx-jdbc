@@ -69,7 +69,7 @@ public class DepartmentListController implements Initializable, DataChangeListen
 		//método para o height da tabela acompanhar o height da tela, ou seja, vai até o fim da tela
 	}
 	
-	public void updateTableView() {
+	protected void updateTableView() {
 		if(service == null) {
 			throw new IllegalStateException("Service was null!!");
 		}

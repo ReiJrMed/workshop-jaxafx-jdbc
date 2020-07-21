@@ -43,7 +43,7 @@
             <TextField fx:id="txtName" promptText="Enter name..." GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Label fx:id="labelErrorName" textAlignment="CENTER" textFill="RED" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="1">
                <font>
-                  <Font name="Arial Black" size="14.0" />
+                  <Font name="Arial Bold" size="10.0" />
                </font>
                <padding>
                   <Insets left="40.0" />
