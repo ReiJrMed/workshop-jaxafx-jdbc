@@ -46,7 +46,7 @@ public class DepartmentListController implements Initializable{
 	
 	@FXML
 	public void onBtNewAction(ActionEvent action) {
-		Department department = new Department(2, "Books");
+		Department department = new Department();
 		createDialogForm(department, "/gui/DepartmentForm.fxml", Utils.currentStage(action));
 	}
 	
@@ -85,6 +85,7 @@ public class DepartmentListController implements Initializable{
 			
 			DepartmentFormController controller = loader.getController();
 			controller.setDepartment(department);
+			controller.setDepartmentService(new DepartmentService());
 			controller.updateFormData();
 			
 			Stage dialogStage = new Stage();//Para fazer uma janela modal é preciso um novo palco(stage) instanciado

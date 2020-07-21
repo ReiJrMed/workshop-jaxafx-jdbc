@@ -10,4 +10,12 @@ public class Utils {
 		return (Stage)(((Node)action.getSource()).getScene().getWindow());//Downcasting do getWindow para o Stage
 	}
 	
+	public static Integer tryParseToInt(String str) {
+		try {
+			return Integer.parseInt(str);
+		} catch(NumberFormatException e) {
+			return null;
+		}
+	}
+	
 }
