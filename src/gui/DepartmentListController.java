@@ -1,18 +1,27 @@
 package gui;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
 import application.Main;
+import gui.util.Alerts;
+import gui.util.Utils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.Pane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.entities.Department;
 import model.services.DepartmentService;
@@ -36,8 +45,8 @@ public class DepartmentListController implements Initializable{
 	private ObservableList<Department> obsListDepartment;
 	
 	@FXML
-	public void onBtNewAction() {
-		System.out.println("onBtNewAction()");
+	public void onBtNewAction(ActionEvent action) {
+		createDialogForm("/gui/DepartmentForm.fxml", Utils.currentStage(action));
 	}
 	
 	public void setDepartmentService(DepartmentService service) {
@@ -66,5 +75,22 @@ public class DepartmentListController implements Initializable{
 		List<Department> list = service.findAll();
 		obsListDepartment = FXCollections.observableArrayList(list);
 		tableViewDepartment.setItems(obsListDepartment);
+	}
+	
+	private void createDialogForm(String absoluteName, Stage parentStage) {
+		try {
+			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
+			Pane pane = loader.load();
+			
+			Stage dialogStage = new Stage();//Para fazer uma janela modal é preciso um novo palco(stage) instanciado
+			dialogStage.setTitle("Enter Department Data");//altera o título do palco
+			dialogStage.setScene(new Scene(pane));//instancia uma cena(Scene(elemento raíz, no caso o tela(pane) ou container))
+			dialogStage.setResizable(false);//método que diz se a janela pode ou não ser redimensionada
+			dialogStage.initOwner(parentStage);//seta o pai dessa janela, no caso o formulário principal
+			dialogStage.initModality(Modality.WINDOW_MODAL);//Seta esse formulário como modal, ou seja, só volta ao pricipal se encerrá-lo
+			dialogStage.showAndWait();//Exibe o formulário, o novo palco
+		} catch (IOException e) {
+			Alerts.showAlert("IO Exception", "Error loadind view", e.getMessage(), AlertType.ERROR);
+		}
 	}
 }
