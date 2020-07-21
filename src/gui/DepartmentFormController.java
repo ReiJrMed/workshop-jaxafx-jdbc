@@ -89,10 +89,13 @@ public class DepartmentFormController implements Initializable {
 		
 		dp.setId(Utils.tryParseToInt(txtId.getText()));
 		
-		if(txtName.getText() == null || txtName.getAccessibleText().trim().equals(""))
+		if(txtName.getText() == null || txtName.getText().trim().equals(""))
 			exc.addError("name", "Field can't be empty");
+				
+		if((!txtName.getText().trim().equals("")) && ((txtName.getText().trim().charAt(txtName.getText().trim().length() -1) == '-') || (txtName.getText().trim().charAt(txtName.getText().trim().length() -1) == 0b00100111)))
+			 exc.addError("name", "- or ' present in the end of name");
 			
-		dp.setName(txtName.getText());
+		dp.setName(txtName.getText().trim());
 		
 		if(exc.getErrors().size() > 0) {
 			throw exc;

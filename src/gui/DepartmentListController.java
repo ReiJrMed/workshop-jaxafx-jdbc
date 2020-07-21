@@ -9,6 +9,7 @@ import application.Main;
 import gui.listeners.DataChangeListener;
 import gui.util.Alerts;
 import gui.util.Utils;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -18,6 +19,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -39,6 +41,9 @@ public class DepartmentListController implements Initializable, DataChangeListen
 	
 	@FXML
 	private TableColumn<Department, String> tableColumnDepartmentName;//TableColumn<Tipo da coluna, tipo que será exposto na coluna>
+	
+	@FXML
+	private TableColumn<Department, Department> tableColumnEDIT;
 	
 	@FXML
 	private Button btNew;
@@ -77,6 +82,8 @@ public class DepartmentListController implements Initializable, DataChangeListen
 		List<Department> list = service.findAll();
 		obsListDepartment = FXCollections.observableArrayList(list);
 		tableViewDepartment.setItems(obsListDepartment);
+		
+		initEditButtons();
 	}
 	
 	private void createDialogForm(Department department, String absoluteName, Stage parentStage) {
@@ -106,4 +113,23 @@ public class DepartmentListController implements Initializable, DataChangeListen
 	public void onDataChanged() {
 		updateTableView();		
 	}
+	
+	private void initEditButtons() {
+		tableColumnEDIT.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
+		tableColumnEDIT.setCellFactory(param -> new TableCell<Department, Department>(){
+			private final Button btEdit = new Button("edit");
+			
+			@Override
+			protected void updateItem(Department dp, boolean empty) {
+				if(dp == null) {
+					setGraphic(null);
+					return;
+				}
+				
+				setGraphic(btEdit);
+				btEdit.setOnAction(event -> createDialogForm(dp, "/gui/DepartmentForm.fxml", Utils.currentStage(event)));					
+			}			
+		});
+	}
+	
 }
