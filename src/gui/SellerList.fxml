@@ -21,12 +21,15 @@
           <Button fx:id="btNew" mnemonicParsing="false" onAction="#onBtNewAction" text="New" />
         </items>
       </ToolBar>
-      <TableView fx:id="tableViewSeller" prefHeight="331.0" prefWidth="497.0">
+      <TableView fx:id="tableViewSeller" prefHeight="411.0" prefWidth="93.0">
         <columns>
-          <TableColumn fx:id="tableColumnSellerId" prefWidth="75.0" text="Id" />
-          <TableColumn fx:id="tableColumnSellerName" prefWidth="75.0" text="Name" />
-            <TableColumn fx:id="tableColumnEDIT" prefWidth="75.0" />
-            <TableColumn fx:id="tableColumnDELETE" prefWidth="75.0" />
+          <TableColumn fx:id="tableColumnSellerId" prefWidth="29.0" text="Id" />
+          <TableColumn fx:id="tableColumnSellerName" prefWidth="139.0" text="Name" />
+            <TableColumn fx:id="tableColumnSellerEmail" prefWidth="121.0" text="Email" />
+            <TableColumn fx:id="tableColumnSellerBirthDate" prefWidth="71.0" text="BirthDate" />
+            <TableColumn fx:id="tableColumnSellerBaseSalary" prefWidth="65.0" text="BaseSalary" />
+            <TableColumn fx:id="tableColumnEDIT" prefWidth="44.0" />
+            <TableColumn fx:id="tableColumnDELETE" prefWidth="333.0" />
         </columns>
       </TableView>
    </children>

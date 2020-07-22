@@ -2,6 +2,7 @@ package gui;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -46,6 +47,15 @@ public class SellerListController implements Initializable, DataChangeListener{
 	private TableColumn<Seller, String> tableColumnSellerName;//TableColumn<Tipo da coluna, tipo que será exposto na coluna>
 	
 	@FXML
+	private TableColumn<Seller, String> tableColumnSellerEmail;
+	
+	@FXML
+	private TableColumn<Seller, Date> tableColumnSellerBirthDate;
+	
+	@FXML
+	private TableColumn<Seller, Double> tableColumnSellerBaseSalary;
+	
+	@FXML
 	private TableColumn<Seller, Seller> tableColumnEDIT;
 	
 	@FXML
@@ -74,6 +84,11 @@ public class SellerListController implements Initializable, DataChangeListener{
 	private void initializeNodes() {
 		tableColumnSellerId.setCellValueFactory(new PropertyValueFactory<>("Id"));
 		tableColumnSellerName.setCellValueFactory(new PropertyValueFactory<>("Name"));
+		tableColumnSellerEmail.setCellValueFactory(new PropertyValueFactory<>("Email"));
+		tableColumnSellerBirthDate.setCellValueFactory(new PropertyValueFactory<>("birthDate"));
+		Utils.formatTableColumnDate(tableColumnSellerBirthDate, "dd/MM/yyyy");
+		tableColumnSellerBaseSalary.setCellValueFactory(new PropertyValueFactory<>("baseSalary"));
+		Utils.formatTableColumnDouble(tableColumnSellerBaseSalary, 2);
 		
 		Stage st = (Stage)Main.getMainScene().getWindow(); //getWindow() captura a janela e depois se faz o cast para Stage para captutar o Stage
 		tableViewSeller.prefHeightProperty().bind(st.heightProperty());
