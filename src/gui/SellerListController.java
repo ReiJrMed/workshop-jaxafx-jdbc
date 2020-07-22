@@ -160,14 +160,14 @@ public class SellerListController implements Initializable, DataChangeListener{
 			private final Button btDelete = new Button("delete");
 			
 			@Override
-			protected void updateItem(Seller dp, boolean empty) {
-				if(dp == null) {
+			protected void updateItem(Seller sl, boolean empty) {
+				if(sl == null) {
 					setGraphic(null);
 					return;
 				}
 				
 				setGraphic(btDelete);
-				btDelete.setOnAction(event -> removeSeller(dp));					
+				btDelete.setOnAction(event -> removeSeller(sl));					
 			}					
 		});
 	}

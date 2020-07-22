@@ -38,7 +38,7 @@ public class SellerDaoJDBC implements SellerDao{
 			pst.setString(1, seller.getName());
 			pst.setString(2, seller.getEmail());
 			pst.setDate(3, new Date(seller.getBirthDate().getTime()));
-			pst.setDouble(4, seller.getBaseSalary());//Date do java.sql.Date
+			pst.setDouble(4, seller.getBaseSalary());
 			pst.setInt(5, seller.getDepartment().getId());
 			
 			int rowsAffected = pst.executeUpdate();
@@ -136,7 +136,8 @@ public class SellerDaoJDBC implements SellerDao{
 
 	private Seller instantiateSeller(ResultSet rs, Department dp) throws SQLException {
 		return new Seller(rs.getInt("Id"), rs.getString("Name"),rs.getString("Email"),
-				rs.getDate("BirthDate"),rs.getDouble("BaseSalary"), dp);
+				new java.util.Date(rs.getDate("BirthDate").getTime()),rs.getDouble("BaseSalary"), dp);
+		//teve que ir do java.sql.Date para o java.util.Date para evitar problemas com incompatibilidade com a aplicação
 	}
 
 	private Department instantiateDepartment(ResultSet rs) throws SQLException {
