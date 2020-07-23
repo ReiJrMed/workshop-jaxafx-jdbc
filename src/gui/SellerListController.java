@@ -2,6 +2,7 @@ package gui;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +13,7 @@ import db.DBIntegrityException;
 import gui.listeners.DataChangeListener;
 import gui.util.Alerts;
 import gui.util.Utils;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -23,20 +25,28 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Callback;
+import model.entities.Department;
 import model.entities.Seller;
 import model.services.DepartmentService;
 import model.services.SellerService;
 
 public class SellerListController implements Initializable, DataChangeListener{
 	
-	private SellerService service;
+	private SellerService sellerService;
+	
+	private DepartmentService departmentService;
 	
 	@FXML
 	private TableView<Seller> tableViewSeller;
@@ -65,6 +75,14 @@ public class SellerListController implements Initializable, DataChangeListener{
 	@FXML
 	private Button btNew;
 	
+	@FXML
+	private TextField txtConsultByName;
+	
+	@FXML
+	private ComboBox<Department> comboBoxDepartment;
+	
+	private ObservableList<Department> obsListDepartment;
+	
 	private ObservableList<Seller> obsListSeller;
 	
 	@FXML
@@ -73,15 +91,48 @@ public class SellerListController implements Initializable, DataChangeListener{
 		createDialogForm(department, "/gui/SellerForm.fxml", Utils.currentStage(action));
 	}
 	
-	public void setSellerService(SellerService service) {
-		this.service = service;
+	public void setServices(SellerService sellerService, DepartmentService departmentService) {
+		this.sellerService = sellerService;
+		this.departmentService = departmentService;
 	}
 
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 		initializeNodes();
+		Platform.runLater(new Runnable() {
+		    @Override
+		    public void run() {
+		        txtConsultByName.requestFocus();//quando a janela for inctanciada, o focus será direcionado a esse recurso
+		    }
+		});
+	}
+	
+	@FXML
+	public void onTxtConsultByNameKeyTyped() {
+		if(comboBoxDepartment.getValue() != null)
+		  consultTable(txtConsultByName.getText(), comboBoxDepartment.getValue());
+		else
+		  consultTable(txtConsultByName.getText(), new Department());	
+	}
+	
+	@FXML
+	public void onComboBoxDepartmentAction() {
+		consultTable(txtConsultByName.getText(), comboBoxDepartment.getValue());
 	}
 
+	protected void consultTable(String name, Department department) {
+		if(sellerService == null) {
+			throw new IllegalStateException("Service was null");
+		}
+		
+		List<Seller> list = sellerService.findByOptions(name, department);
+		obsListSeller = FXCollections.observableArrayList(list);
+		tableViewSeller.setItems(obsListSeller);
+		
+		initEditButtons();
+		initDeleteButtons();
+	}
+	
 	private void initializeNodes() {
 		tableColumnSellerId.setCellValueFactory(new PropertyValueFactory<>("Id"));
 		tableColumnSellerName.setCellValueFactory(new PropertyValueFactory<>("Name"));
@@ -90,6 +141,8 @@ public class SellerListController implements Initializable, DataChangeListener{
 		Utils.formatTableColumnDate(tableColumnSellerBirthDate, "dd/MM/yyyy");
 		tableColumnSellerBaseSalary.setCellValueFactory(new PropertyValueFactory<>("baseSalary"));
 		Utils.formatTableColumnDouble(tableColumnSellerBaseSalary, 2);
+		initializeComboBoxDepartment();
+		comboBoxDepartment.getSelectionModel().selectFirst();
 		
 		Stage st = (Stage)Main.getMainScene().getWindow(); //getWindow() captura a janela e depois se faz o cast para Stage para captutar o Stage
 		tableViewSeller.prefHeightProperty().bind(st.heightProperty());
@@ -97,11 +150,11 @@ public class SellerListController implements Initializable, DataChangeListener{
 	}
 	
 	protected void updateTableView() {
-		if(service == null) {
+		if(sellerService == null) {
 			throw new IllegalStateException("Service was null!!");
 		}
 		
-		List<Seller> list = service.findAll();
+		List<Seller> list = sellerService.findAll();
 		obsListSeller = FXCollections.observableArrayList(list);
 		tableViewSeller.setItems(obsListSeller);
 		
@@ -136,7 +189,7 @@ public class SellerListController implements Initializable, DataChangeListener{
 
 	@Override
 	public void onDataChanged() {
-		updateTableView();		
+		consultTable(txtConsultByName.getText(), comboBoxDepartment.getValue());		
 	}
 	
 	private void initEditButtons() {
@@ -178,16 +231,44 @@ public class SellerListController implements Initializable, DataChangeListener{
 	private void removeSeller(Seller dp) {
 		Optional<ButtonType> result = Alerts.showConfirmation("Confirmation", "Are you sure to delete?");
 		if(result.get() == ButtonType.OK) {
-			if(service == null)
+			if(sellerService == null)
 				throw new IllegalStateException("Service was null");
 			
 			try {
-				service.remove(dp);
+				sellerService.remove(dp);
 				updateTableView();
 			} catch (DBIntegrityException e) {
 				Alerts.showAlert("Error removing department", null, e.getMessage(), AlertType.ERROR);
 			}
 		}			
-	}	
+	}
+	
+	public void loadAssociatedObjects() {
+		if(departmentService == null)
+			throw new IllegalStateException("Department Service was null");
+		
+		List<Department> departments = new ArrayList<>();
+		departments.add(new Department());
+		
+		for(Department department : departmentService.findAll()) {
+			departments.add(department);
+		}		
+				
+		obsListDepartment = FXCollections.observableArrayList(departments);
+		comboBoxDepartment.setItems(obsListDepartment);
+	}
+	
+	private void initializeComboBoxDepartment() {
+		Callback<ListView<Department>, ListCell<Department>> factory = lv -> new ListCell<Department>() {
+			@Override
+			protected void updateItem(Department departmentItem, boolean empty) {
+				super.updateItem(departmentItem, empty);
+				setText(empty ? "" : departmentItem.getName());
+			} 
+		};
+		
+		comboBoxDepartment.setCellFactory(factory);
+		comboBoxDepartment.setButtonCell(factory.call(null));
+	}
 	
 }

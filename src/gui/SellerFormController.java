@@ -1,9 +1,11 @@
 package gui;
 
 import java.net.URL;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -121,25 +123,54 @@ public class SellerFormController implements Initializable {
 	}
 
 	private Seller getSellerFormData() {
-		Seller dp = new Seller();
+		Seller sl = new Seller();
 		
 		ValidationException exc = new ValidationException("Validation error");
 		
-		dp.setId(Utils.tryParseToInt(txtId.getText()));
+		sl.setId(Utils.tryParseToInt(txtId.getText()));
 		
-		if(txtName.getText() == null || txtName.getText().trim().equals(""))
+		if(txtName.getText() == null || txtName.getText().trim().equals("")) {
 			exc.addError("name", "Field can't be empty");
+		} else {
+			if((txtName.getText().trim().charAt(txtName.getText().trim().length() -1) == '-') || (txtName.getText().trim().charAt(txtName.getText().trim().length() -1) == 0b00100111))
+				 exc.addError("name", "- or ' present in the end of name");
+			else
+				sl.setName(txtName.getText().trim());	
+		}	
 				
-		if((!txtName.getText().trim().equals("")) && ((txtName.getText().trim().charAt(txtName.getText().trim().length() -1) == '-') || (txtName.getText().trim().charAt(txtName.getText().trim().length() -1) == 0b00100111)))
-			 exc.addError("name", "- or ' present in the end of name");
+		if(txtEmail.getText() == null || txtEmail.getText().trim().equals("")) {
+			exc.addError("email", "Field can't be empty");
+		} else {	
+		    if(Utils.validateEmail(txtEmail.getText().trim()))
+			    sl.setEmail(txtEmail.getText().trim());
+		    else
+		    	exc.addError("email", "Email format invalid (#####@####.###)");
+		}
+		if(dpBirthDate.getValue() != null) {
+			Instant instant = Instant.from(dpBirthDate.getValue().atStartOfDay(ZoneId.systemDefault()));
+			//capturando data do datepicker em forma de instant
 			
-		dp.setName(txtName.getText().trim());
+			if(Date.from(instant).after(new Date()))
+			  exc.addError("birthDate", "Date after current date.");
+			else		
+		      sl.setBirthDate(Date.from(instant));
+			
+		} else {
+			exc.addError("birthDate", "Field can't be empty");
+		}
+		
+		if(txtBaseSalary.getText() == null || txtBaseSalary.getText().trim().equals(""))
+			exc.addError("BaseSalary", "Field can't be empty");
+		
+		sl.setBaseSalary(Utils.tryParseToDouble(txtBaseSalary.getText()));
+		
+		sl.setDepartment(comboBoxDepartment.getValue());
 		
 		if(exc.getErrors().size() > 0) {
 			throw exc;
 		}
 		
-		return dp;
+		return sl;
 	}
 
 	@FXML
@@ -188,9 +219,10 @@ public class SellerFormController implements Initializable {
 	private void setErrorMessages(Map<String, String> errors) {
 		Set<String> fields = errors.keySet();
 		
-		if(fields.contains("name")) {
-			labelErrorName.setText(errors.get("name"));
-		}
+		labelErrorName.setText(fields.contains("name") ? errors.get("name") : "");
+		labelErrorEmail.setText(fields.contains("email") ? errors.get("email") : "");
+		labelErrorBirthDate.setText(fields.contains("birthDate")? errors.get("birthDate") : "");
+		labelErrorBaseSalary.setText(fields.contains("BaseSalary") ? errors.get("BaseSalary") : "");		
 	}
 	
 	public void loadAssociatedObjects() {

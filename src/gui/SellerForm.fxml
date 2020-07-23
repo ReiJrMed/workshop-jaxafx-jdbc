@@ -47,6 +47,10 @@
                   <Cursor fx:constant="NONE" />
                </cursor></TextField>
             <TextField fx:id="txtName" promptText="Enter name..." GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField fx:id="txtEmail" promptText="Enter email..." GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <DatePicker fx:id="dpBirthDate" promptText="Select BirthDate..." GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <TextField fx:id="txtBaseSalary" promptText="Enter base salary..." GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <ComboBox fx:id="comboBoxDepartment" prefHeight="25.0" prefWidth="173.0" promptText="Select a department..." GridPane.columnIndex="1" GridPane.rowIndex="5" />
             <Label fx:id="labelErrorName" textAlignment="CENTER" textFill="RED" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="1">
                <font>
                   <Font name="Arial Bold" size="10.0" />
@@ -79,15 +83,11 @@
                   <Font name="Elephant" size="17.0" />
                </font>
             </Label>
-            <DatePicker fx:id="dpBirthDate" promptText="Select BirthDate..." GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <TextField fx:id="txtEmail" promptText="Enter email..." GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <TextField fx:id="txtBaseSalary" promptText="Enter base salary..." GridPane.columnIndex="1" GridPane.rowIndex="4" />
             <Label text="Department:" GridPane.rowIndex="5">
                <font>
                   <Font name="Elephant" size="17.0" />
                </font>
             </Label>
-            <ComboBox fx:id="comboBoxDepartment" prefHeight="25.0" prefWidth="173.0" promptText="Select a department..." GridPane.columnIndex="1" GridPane.rowIndex="5" />
             <Label fx:id="labelErrorEmail" textAlignment="CENTER" textFill="RED" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="2">
                <font>
                   <Font name="Arial Bold" size="10.0" />

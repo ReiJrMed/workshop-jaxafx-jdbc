@@ -10,7 +10,9 @@ import application.Main;
 import db.DBIntegrityException;
 import gui.listeners.DataChangeListener;
 import gui.util.Alerts;
+import gui.util.Constraints;
 import gui.util.Utils;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -25,6 +27,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
@@ -54,7 +57,28 @@ public class DepartmentListController implements Initializable, DataChangeListen
 	@FXML
 	private Button btNew;
 	
+	@FXML
+	private TextField txtConsultByName;
+	
 	private ObservableList<Department> obsListDepartment;
+	
+	@FXML
+	public void onTxtConsultByNameKeyTyped() {
+		consultTable(txtConsultByName.getText());
+	}
+	
+	private void consultTable(String name) {
+		if(service == null) {
+			throw new IllegalStateException("Service was null!!");
+		}
+		
+		List<Department> list = service.findByName(name);
+		obsListDepartment = FXCollections.observableArrayList(list);
+		tableViewDepartment.setItems(obsListDepartment);
+		
+		initEditButtons();
+		initDeleteButtons();
+	}
 	
 	@FXML
 	public void onBtNewAction(ActionEvent action) {
@@ -69,12 +93,19 @@ public class DepartmentListController implements Initializable, DataChangeListen
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 		initializeNodes();
+		Platform.runLater(new Runnable() {
+		    @Override
+		    public void run() {
+		        txtConsultByName.requestFocus();
+		    }
+		});
 	}
 
 	private void initializeNodes() {
 		tableColumnDepartmentId.setCellValueFactory(new PropertyValueFactory<>("Id"));
 		tableColumnDepartmentName.setCellValueFactory(new PropertyValueFactory<>("Name"));
-		
+		Constraints.setTextFieldLetter(txtConsultByName);
+				
 		Stage st = (Stage)Main.getMainScene().getWindow(); //getWindow() captura a janela e depois se faz o cast para Stage para captutar o Stage
 		tableViewDepartment.prefHeightProperty().bind(st.heightProperty());
 		//método para o height da tabela acompanhar o height da tela, ou seja, vai até o fim da tela
@@ -119,7 +150,7 @@ public class DepartmentListController implements Initializable, DataChangeListen
 
 	@Override
 	public void onDataChanged() {
-		updateTableView();		
+		consultTable(txtConsultByName.getText());
 	}
 	
 	private void initEditButtons() {
@@ -171,6 +202,5 @@ public class DepartmentListController implements Initializable, DataChangeListen
 				Alerts.showAlert("Error removing department", null, e.getMessage(), AlertType.ERROR);
 			}
 		}			
-	}	
-	
+	}		
 }

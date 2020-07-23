@@ -14,6 +14,8 @@ public interface DepartmentDao {
 	
 	Department findById(Integer Id);
 	
-	List<Department> findAll();	
+	List<Department> findAll();
+	
+	List<Department> findByName(String name);
 
 }

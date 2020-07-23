@@ -8,8 +8,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import db.DB;
 import db.DBException;
@@ -91,7 +93,7 @@ public class SellerDaoJDBC implements SellerDao{
 		
 		try {
 			
-			pst = conn.prepareStatement("DELETE FROM seller WHERE Id = ?" );
+			pst = conn.prepareStatement("DELETE FROM seller WHERE Id = ?");
 			//cada interrogação corresponde a uma coluna que você vai alterar(índice inicia em 1)
 			
 			pst.setInt(1, Id);
@@ -217,6 +219,67 @@ public class SellerDaoJDBC implements SellerDao{
 			DB.closeResultSet(rs);
 			DB.closeStatement(pst);
 			//não fechar a conexão pois esse objeto pode servir para fazer mais de uma operação
+		}		
+	}
+	
+	@Override
+	public List<Seller> findByName(String name){
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+		
+		try {
+			pst = conn.prepareStatement("select seller.*, department.Name as Department from seller inner join department "
+					+ "on seller.DepartmentId = department.Id where upper(seller.Name) like  ?");
+			
+			pst.setString(1, name.toUpperCase() + "%");
+			
+			rs = pst.executeQuery();
+			
+			List<Seller> seller = new ArrayList<>();
+			
+			Map<Integer, Department> departments = new HashMap<>();
+			
+			while(rs.next()) {
+				Department dp = departments.get(rs.getInt("DepartmentId"));
+				
+				if(dp == null) {
+					dp = instantiateDepartment(rs);
+					departments.put(rs.getInt("DepartmentId"), dp);
+				}
+								
+				seller.add(instantiateSeller(rs, dp)); 
+			}
+			
+			return seller;
+			
+		} catch (SQLException e) {
+			throw new DBException(e.getMessage());
+		} finally {
+			DB.closeResultSet(rs);
+			DB.closeStatement(pst);
+			//não fechar a conexão pois esse objeto pode servir para fazer mais de uma operação
+		}
+	}
+	
+	@Override
+	public List<Seller> findByOptions(String name, Department department){
+		if((name != null) && (department.getId() != null)) {
+			Set<Seller> setSellerByName = new HashSet<>(findByName(name));
+			Set<Seller> setSellerByDepartment = new HashSet<>(findByDepartment(department));
+			
+			setSellerByName.retainAll(setSellerByDepartment);
+			
+			List<Seller> sellers = new ArrayList<>(setSellerByName);
+			return sellers;
+		} else {
+			if((name == null) && (department.getId() == null)) {
+				return findAll();
+			} else {
+				if(name != null)
+					return findByName(name);
+				else
+					return findByDepartment(department);
+			}
 		}		
 	}
 	

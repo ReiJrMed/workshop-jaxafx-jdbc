@@ -148,4 +148,35 @@ public class DepartmentDaoJDBC implements DepartmentDao{
 		return new Department(rs.getInt("Id"), rs.getString("Name"));
 	}
 
+	@Override
+	public List<Department> findByName(String name) {
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+		
+		if(name == null) {
+			return findAll();
+		} else {
+			try {
+				pst = conn.prepareStatement("select department.* from department where upper(name) like ?");
+				
+				pst.setString(1, name.toUpperCase() +"%");
+				
+				rs = pst.executeQuery();
+				
+				List<Department> departments = new ArrayList<>();
+				while(rs.next()) {
+					departments.add(instantiateDepartment(rs));
+				}
+				
+				return departments;
+				
+			} catch(SQLException e) {
+				throw new DBException(e.getMessage());
+			} finally {
+				DB.closeResultSet(rs);
+				DB.closeStatement(pst);
+			}
+		}		
+	}
+
 }

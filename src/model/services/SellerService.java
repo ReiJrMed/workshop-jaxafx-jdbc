@@ -4,6 +4,7 @@ import java.util.List;
 
 import model.dao.DaoFactory;
 import model.dao.SellerDao;
+import model.entities.Department;
 import model.entities.Seller;
 
 public class SellerService {
@@ -12,6 +13,10 @@ public class SellerService {
 	
 	public List<Seller> findAll(){
 		return dao.findAll();
+	}
+	
+	public List<Seller> findByOptions(String name, Department department){
+		return dao.findByOptions(name, department);
 	}
 	
 	public String saveOrUpdate(Seller seller) {
